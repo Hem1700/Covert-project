@@ -2,33 +2,40 @@ import os
 import subprocess
 import shutil
 
+def encode_message_in_image(image_file, user_input):
+    try:
+        if len(user_input) < 4:
+            raise ValueError("Please enter at least four characters for encoding.")
+
+        # Get the ASCII values of the first four characters
+        ascii_values = [ord(char) for char in user_input[:4]]
+
+        # Create a copy of the original image to work with
+        temp_image_file = 'temp_image.jpg'
+        shutil.copy(image_file, temp_image_file)
+
+        # Use exiftool to set ASCII values into specific metadata fields
+        exiftool_commands = [
+            '-Rating={}'.format(ascii_values[1]),
+            '-YResolution={}'.format(ascii_values[0]),
+            '-XResolution={}'.format(ascii_values[2]),
+            '-ExifVersion={}'.format(ascii_values[3])
+        ]
+
+        subprocess.run(['exiftool'] + exiftool_commands + [temp_image_file])
+
+        # Rename the temp image to the original image file name
+        os.rename(temp_image_file, image_file)
+
+        print("Metadata updated with ASCII values.")
+    except Exception as e:
+        print("An error occurred:", e)
+
 # Get user input message
 user_input = input("Enter a message to encode: ")
 
-# Specify the image file and temporary file
+# Specify the image file
 image_file = 'img.jpg'  # Replace with your image file name
-temp_image_file = 'temp_image.jpg'
 
-try:
-    # Check if there are at least two characters in the user's input
-    if len(user_input) < 2:
-        raise Exception("Please enter at least two characters for encoding.")
-
-    # Get the ASCII values of the first two characters
-    ascii_value_1 = ord(user_input[0])
-    ascii_value_2 = ord(user_input[1])
-    ascii_value_3 = ord(user_input[2])
-    ascii_value_4 = ord(user_input[3])
-
-    # Create a copy of the original image to work with
-    shutil.copy(image_file, temp_image_file)
-
-    # Use exiftool to set ASCII values into specific metadata fields
-    subprocess.run(['exiftool', '-Rating={}'.format(ascii_value_2), '-YResolution={}'.format(ascii_value_1), '-XResolution={}'.format(ascii_value_3), '-ExifVersion={}'.format(ascii_value_4), temp_image_file])
-
-    # Rename the temp image to the original image file name
-    os.rename(temp_image_file, image_file)
-
-    print("Metadata updated with ASCII values.")
-except Exception as e:
-    print("An error occurred:", e)
+# Call the encoding function
+encode_message_in_image(image_file, user_input)
