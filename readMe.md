@@ -13,3 +13,8 @@
 2. Run "python3 decode.py"
 3. This should print the message.
 
+
+
+Authors
+1. Praj Shete (pj7600)
+2. Hem Parekh (hp5643)
